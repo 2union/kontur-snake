@@ -3,33 +3,18 @@ import socket
 from collections import deque
 from _thread import *
 
-from settings import *
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-if isinstance(SOCKET_POINT, str):
-    if os.path.exists(SOCKET_POINT):
-        os.remove(SOCKET_POINT)
-    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-
-try:
-    s.bind(SOCKET_POINT)
-except socket.error as e:
-    print(str(e))
-
-s.listen(2)
-print("Waiting for a connection")
+from settings import Settings
 
 commands = deque()
 responses = deque()
 finish = ''
 
 
-def threaded_client(conn):
+def threaded_client(conn, settings):
     global commands, finish, responses
     while True:
         try:
-            data = conn.recv(PACKAGE_SIZE)
+            data = conn.recv(settings.PACKAGE_SIZE)
             reply = data.decode('utf-8')
             if not data:
                 conn.send(str.encode("Goodbye"))
@@ -69,8 +54,29 @@ def threaded_client(conn):
     conn.close()
 
 
-while True:
-    conn, addr = s.accept()
-    print("Connected to client!")
+def server_run():
+    settings = Settings()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    start_new_thread(threaded_client, (conn,))
+    if isinstance(settings.SOCKET_POINT, str):
+        if os.path.exists(settings.SOCKET_POINT):
+            os.remove(settings.SOCKET_POINT)
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+
+    try:
+        s.bind(settings.SOCKET_POINT)
+    except socket.error as e:
+        print(str(e))
+
+    s.listen(2)
+    print("Waiting for a connection")
+
+    while True:
+        conn, addr = s.accept()
+        print("Connected to client!")
+
+        start_new_thread(threaded_client, (conn, settings))
+
+
+if __name__ == "__main__":
+    server_run()
