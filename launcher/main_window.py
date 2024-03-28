@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from .runner import components_toggle
+from leaders import leader_board, turncate_tables
 
 
 class Launcher(ttk.Frame):
@@ -42,6 +43,23 @@ class Launcher(ttk.Frame):
             self.unix_socket.destroy()
             self.set_net_socket(self.socket_frame)
 
+    def refresh_data(self):
+        for line in self.treeview.get_children():
+            self.treeview.delete(line)
+
+        # Define treeview data
+        treeview_data = leader_board()
+
+        # Insert treeview data
+        for item in treeview_data:
+            self.treeview.insert(
+                parent=item[0], index=tk.END, iid=item[1], text=item[2], values=item[3]
+            )
+
+    def clear_data(self):
+        turncate_tables()
+        self.refresh_data()
+
     def setup_widgets(self):
         # Create a Frame for input widgets
         self.widgets_frame = ttk.Frame(self, padding=(0, 0, 0, 10))
@@ -71,11 +89,13 @@ class Launcher(ttk.Frame):
         self.separator_one.grid(row=4, column=0, padx=(20, 10), pady=10, sticky="ew")
 
         # Update user data
-        self.updete_button = ttk.Button(self.widgets_frame, text="Обновить статистику")
+        self.updete_button = ttk.Button(self.widgets_frame, text="Обновить статистику",
+                                        command=self.refresh_data)
         self.updete_button.grid(row=5, column=0, padx=5, pady=10, sticky="nsew")
 
         # Reset user date
-        self.reset_button = ttk.Button(self.widgets_frame, text="Сбросить статистику")
+        self.reset_button = ttk.Button(self.widgets_frame, text="Сбросить статистику",
+                                       command=self.clear_data)
         self.reset_button.grid(row=6, column=0, padx=5, pady=10, sticky="nsew")
 
         # Separator
@@ -121,28 +141,7 @@ class Launcher(ttk.Frame):
         self.treeview.heading("#1", text="Счёт", anchor="center")
 
         # Define treeview data
-        treeview_data = [
-            ("", 1, "Parent", ["5"]),
-            (1, 2, "Child", [""]),
-            (1, 3, "Child", [""]),
-            (1, 4, "Child", [""]),
-            (1, 5, "Child", [""]),
-            ("", 6, "Parent", ["4"]),
-            (6, 7, "Child", [""]),
-            (6, 8, "Child", [""]),
-            (6, 9, "Child", [""]),
-            (6, 10, "Child", [""]),
-            ("", 11, "Parent", ["2"]),
-            (11, 12, "Child", [""]),
-            (11, 13, "Child", [""]),
-            (11, 14, "Child", [""]),
-            (11, 15, "Child", [""]),
-            ("", 16, "Parent", ["1"]),
-            (16, 17, "Child", [""]),
-            (16, 18, "Child", [""]),
-            (16, 19, "Child", [""]),
-            (16, 20, "Child", [""]),
-        ]
+        treeview_data = leader_board()
 
         # Insert treeview data
         for item in treeview_data:

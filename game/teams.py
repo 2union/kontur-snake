@@ -105,6 +105,11 @@ class Teams:
         ''')
         self.connection.commit()
 
+    def turncate_tables(self):
+        self.cursor.execute('''DELETE FROM score;''')
+        self.cursor.execute('''DELETE FROM team;''')
+        self.cursor.execute('''DELETE FROM used_names;''')
+
     def get_name(self) -> Tuple[int, str]:
         name = random.choice(self.names_list)
         res = self.cursor.execute(f'SELECT COUNT(*) FROM used_names WHERE name = "{name}";')
@@ -172,7 +177,8 @@ class Teams:
             INNER JOIN score 
                 ON team.rowid = score.teamid
             ORDER BY
-                score.score DESC;
+                score.score DESC,
+                used_names.name ASC;
         ''')
 
         return res.fetchall()
